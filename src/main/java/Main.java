@@ -25,7 +25,15 @@ public class Main {
         Terminal terminal = createTerminal();
         int roadSideWidth = 20;
         drawRoadside(terminal, roadSideWidth);
-        Player player = new Player(40,24,'X');
+        int[] playerX = {40,41};
+        int[] playerY = {20,21,22};
+        int[] playerPreviousX = {40,41};
+        int[] playerPreviousY = {20,21,22};
+        Player player = new Player(playerX,playerY,'\u2588');
+        player.setPreviousX(playerPreviousX);
+        player.setPreviousY(playerPreviousY);
+
+
         //Add enemies
         drawCars(terminal,player);
 
@@ -52,12 +60,12 @@ public class Main {
     private static void movePlayer(Player player, KeyStroke keyStroke, int roadSideWidth) {
         switch (keyStroke.getKeyType()) {
             case ArrowLeft:
-                if (player.getX() > roadSideWidth){
+                if (player.getX1() > roadSideWidth){
                     player.moveLeft();
                 }
                 break;
             case ArrowRight:
-                if (player.getX() < (79-roadSideWidth)){
+                if (player.getX2() < (79-roadSideWidth)){
                     player.moveRight();
                 }
                 break;
@@ -74,13 +82,20 @@ public class Main {
     }
 
     private static void drawCars(Terminal terminal, Player player) throws IOException {
-        terminal.setCursorPosition(player.getPreviousX(), player.getPreviousY());
-        terminal.putCharacter(' ');
-
+        for(int y : player.getPreviousY()){
+            for(int x : player.getPreviousX()){
+                terminal.setCursorPosition(x, y);
+                terminal.putCharacter(' ');
+            }
+        }
         terminal.setForegroundColor(TextColor.ANSI.RED);
-        terminal.setCursorPosition(player.getX(), player.getY());
-        terminal.putCharacter(player.getSymbol());
 
+        for(int y : player.getY()){
+            for(int x : player.getX()){
+                terminal.setCursorPosition(x, y);
+                terminal.putCharacter(player.getSymbol());
+            }
+        }
         terminal.flush();
     }
 
