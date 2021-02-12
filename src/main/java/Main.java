@@ -4,7 +4,10 @@ import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Main {
     public static void main(String[] args) {
@@ -33,21 +36,38 @@ public class Main {
         player.setPreviousX(playerPreviousX);
         player.setPreviousY(playerPreviousY);
 
+        List<Opponent> opponents = new ArrayList<>();
+        opponents.add(createOpponent());
 
-        //Add enemies
-        drawCars(terminal,player);
+        drawCars(terminal,player,opponents);
 
         do {
             KeyStroke keyStroke = getUserKeyStroke(terminal);
 
             movePlayer(player, keyStroke,roadSideWidth);
 
+            for(Opponent o : opponents){
+                o.move();
+            }
+
             //moveMonsters(player, monsters);
 
-            drawCars(terminal, player);
+            drawCars(terminal, player,opponents);
 
         } while (true);
 
+    }
+
+    private static Opponent createOpponent(){
+        int x = ThreadLocalRandom.current().nextInt(20,60);
+        int[] opponentX = {x,x+1};
+        int[] opponentY = {0,1,2};
+        int[] opponentPreviousX = {x,x+1};
+        int[] opponentPreviousY = {0,1,2};
+        Opponent opponent = new Opponent(opponentX,opponentY,'\u2588');
+        opponent.setPreviousX(opponentPreviousX);
+        opponent.setPreviousY(opponentPreviousY);
+        return opponent;
     }
 
     private static Terminal createTerminal() throws IOException {
@@ -81,7 +101,7 @@ public class Main {
         return keyStroke;
     }
 
-    private static void drawCars(Terminal terminal, Player player) throws IOException {
+    private static void drawCars(Terminal terminal, Player player, List<Opponent> opponents) throws IOException {
         for(int y : player.getPreviousY()){
             for(int x : player.getPreviousX()){
                 terminal.setCursorPosition(x, y);
@@ -96,6 +116,25 @@ public class Main {
                 terminal.putCharacter(player.getSymbol());
             }
         }
+
+        for(Opponent o : opponents){
+            for(int y : o.getPreviousY()){
+                for(int x : o.getPreviousX()){
+                    terminal.setCursorPosition(x, y);
+                    terminal.putCharacter(' ');
+                }
+            }
+            terminal.setForegroundColor(TextColor.ANSI.BLUE);
+
+            for(int y : o.getY()){
+                for(int x : o.getX()){
+                    terminal.setCursorPosition(x, y);
+                    terminal.putCharacter(o.getSymbol());
+                }
+            }
+        }
+
+
         terminal.flush();
     }
 
