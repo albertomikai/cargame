@@ -47,23 +47,20 @@ public class Main {
             movePlayer(player, keyStroke,roadSideWidth);
 
             for(Opponent o : opponents){
-                o.move();
+                    o.move();
             }
 
-            //moveMonsters(player, monsters);
+            drawCars(terminal, player, opponents);
 
-            drawCars(terminal, player,opponents);
-
-        } while (true);
-
+        } while (isPlayerAlive(player, opponents));
     }
 
     private static Opponent createOpponent(){
-        int x = ThreadLocalRandom.current().nextInt(20,60);
+        int x = ThreadLocalRandom.current().nextInt(20,59);
         int[] opponentX = {x,x+1};
-        int[] opponentY = {0,1,2};
+        int[] opponentY = {-3,-2,-1};
         int[] opponentPreviousX = {x,x+1};
-        int[] opponentPreviousY = {0,1,2};
+        int[] opponentPreviousY = {-3,-2,-1};
         Opponent opponent = new Opponent(opponentX,opponentY,'\u2588');
         opponent.setPreviousX(opponentPreviousX);
         opponent.setPreviousY(opponentPreviousY);
@@ -90,6 +87,17 @@ public class Main {
                 }
                 break;
         }
+    }
+
+    private static boolean isPlayerAlive(Player player, List<Opponent> opponents) {
+        for (Opponent o : opponents) {
+            if(player.getY()[0] - o.getY()[2] < 2 && o.getY()[0] < 26){
+                if (o.getX()[0] == player.getX()[0] || o.getX()[1] == player.getX()[0] || o.getX()[0] == player.getX()[1] || o.getX()[1] == player.getX()[1]){
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private static KeyStroke getUserKeyStroke(Terminal terminal) throws InterruptedException, IOException {
@@ -127,13 +135,14 @@ public class Main {
             terminal.setForegroundColor(TextColor.ANSI.BLUE);
 
             for(int y : o.getY()){
-                for(int x : o.getX()){
-                    terminal.setCursorPosition(x, y);
-                    terminal.putCharacter(o.getSymbol());
+                if(o.getY()[2] >= 0){
+                    for(int x : o.getX()){
+                        terminal.setCursorPosition(x, y);
+                        terminal.putCharacter(o.getSymbol());
+                    }
                 }
             }
         }
-
 
         terminal.flush();
     }
