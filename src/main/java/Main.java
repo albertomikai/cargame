@@ -9,7 +9,12 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
+//TODO: lägg till ytterligare spelmoment
+
 public class Main {
+    public static int score = 0;
+    public static int roadSideWidth = 20;
+
     public static void main(String[] args) {
 
         System.out.println("Cargame");
@@ -21,50 +26,89 @@ public class Main {
             System.exit(1);
         } finally {
             System.out.println("Game over!");
+            System.out.printf("Your score is: %d", score);
+            //TODO: Lägg till "Game over" och annat kul vid spelets slut
         }
 
     }
+
     private static void startGame() throws IOException, InterruptedException {
         Terminal terminal = createTerminal();
-        int roadSideWidth = 20;
         drawRoadside(terminal, roadSideWidth);
-        int[] playerX = {40,41};
-        int[] playerY = {20,21,22};
-        int[] playerPreviousX = {40,41};
-        int[] playerPreviousY = {20,21,22};
-        Player player = new Player(playerX,playerY,'\u2588');
+        int[] playerX = {40, 41};
+        int[] playerY = {20, 21, 22};
+        int[] playerPreviousX = {40, 41};
+        int[] playerPreviousY = {20, 21, 22};
+        Player player = new Player(playerX, playerY, '\u2588');
         player.setPreviousX(playerPreviousX);
         player.setPreviousY(playerPreviousY);
 
         List<Opponent> opponents = new ArrayList<>();
         opponents.add(createOpponent());
 
-        drawCars(terminal,player,opponents);
+        List<Opponent> opponentsForRemoval = new ArrayList<>();
 
+        drawCars(terminal, player, opponents);
+
+        int carSpawnFactor = 50;
+        int speedFactor = 50;
         do {
+            score++;
+            Thread.sleep(speedFactor);
+
             KeyStroke keyStroke = getUserKeyStroke(terminal);
 
-            movePlayer(player, keyStroke,roadSideWidth);
-
-            for(Opponent o : opponents){
-                    o.move();
+            if (keyStroke != null) {
+                movePlayer(player, keyStroke, roadSideWidth);
             }
 
+            if (score % 5 == 0) {
+                for (Opponent o : opponents) {
+                    o.move();
+                    if(o.getY()[0] == 30){
+                        opponentsForRemoval.add(o);
+                    }
+                }
+                opponents.removeAll(opponentsForRemoval);
+            }
+
+            if (score % carSpawnFactor == 0) {
+                opponents.add(createOpponent());
+            }
+
+            if (score % 100 == 0 && carSpawnFactor > 20) {
+                carSpawnFactor = carSpawnFactor - 5;
+            }
+            if (score % 100 == 0 && speedFactor > 5) {
+                speedFactor = speedFactor - 5;
+            }
+
+
             drawCars(terminal, player, opponents);
+            printScore(terminal, score);
+            System.out.println(opponents.size());
 
         } while (isPlayerAlive(player, opponents));
     }
 
-    private static Opponent createOpponent(){
-        int x = ThreadLocalRandom.current().nextInt(20,59);
-        int[] opponentX = {x,x+1};
-        int[] opponentY = {-3,-2,-1};
-        int[] opponentPreviousX = {x,x+1};
-        int[] opponentPreviousY = {-3,-2,-1};
-        Opponent opponent = new Opponent(opponentX,opponentY,'\u2588');
+    private static KeyStroke getUserKeyStroke(Terminal terminal) throws InterruptedException, IOException {
+        KeyStroke keyStroke;
+        keyStroke = terminal.pollInput();
+        return keyStroke;
+    }
+
+    private static Opponent createOpponent() {
+        int x = ThreadLocalRandom.current().nextInt(roadSideWidth, 79 - roadSideWidth);
+        int[] opponentX = {x, x + 1};
+        int[] opponentY = {-3, -2, -1};
+        int[] opponentPreviousX = {x, x + 1};
+        int[] opponentPreviousY = {-3, -2, -1};
+        Opponent opponent = new Opponent(opponentX, opponentY, '\u2588');
         opponent.setPreviousX(opponentPreviousX);
         opponent.setPreviousY(opponentPreviousY);
         return opponent;
+
+        //TODO: Assigna färg på Opponent
     }
 
     private static Terminal createTerminal() throws IOException {
@@ -77,12 +121,12 @@ public class Main {
     private static void movePlayer(Player player, KeyStroke keyStroke, int roadSideWidth) {
         switch (keyStroke.getKeyType()) {
             case ArrowLeft:
-                if (player.getX1() > roadSideWidth){
+                if (player.getX1() > roadSideWidth) {
                     player.moveLeft();
                 }
                 break;
             case ArrowRight:
-                if (player.getX2() < (79-roadSideWidth)){
+                if (player.getX2() < (79 - roadSideWidth)) {
                     player.moveRight();
                 }
                 break;
@@ -91,8 +135,8 @@ public class Main {
 
     private static boolean isPlayerAlive(Player player, List<Opponent> opponents) {
         for (Opponent o : opponents) {
-            if(player.getY()[0] - o.getY()[2] < 2 && o.getY()[0] < 26){
-                if (o.getX()[0] == player.getX()[0] || o.getX()[1] == player.getX()[0] || o.getX()[0] == player.getX()[1] || o.getX()[1] == player.getX()[1]){
+            if (player.getY()[0] - o.getY()[2] < 2 && o.getY()[0] < 26) {
+                if (o.getX()[0] == player.getX()[0] || o.getX()[1] == player.getX()[0] || o.getX()[0] == player.getX()[1] || o.getX()[1] == player.getX()[1]) {
                     return false;
                 }
             }
@@ -100,48 +144,54 @@ public class Main {
         return true;
     }
 
-    private static KeyStroke getUserKeyStroke(Terminal terminal) throws InterruptedException, IOException {
-        KeyStroke keyStroke;
-        do {
-            Thread.sleep(5);
-            keyStroke = terminal.pollInput();
-        } while (keyStroke == null);
-        return keyStroke;
+    private static void printScore(Terminal terminal, int score) throws IOException {
+        String scoreString = "Score: " + Integer.toString(score);
+        char[] scoreCharArray = scoreString.toCharArray();
+        terminal.setForegroundColor(TextColor.ANSI.WHITE);
+        for (int i = 0; i < scoreCharArray.length; i++) {
+            terminal.setCursorPosition(i, 0);
+            terminal.putCharacter(scoreCharArray[i]);
+        }
     }
 
     private static void drawCars(Terminal terminal, Player player, List<Opponent> opponents) throws IOException {
-        for(int y : player.getPreviousY()){
-            for(int x : player.getPreviousX()){
+        for (int y : player.getPreviousY()) {
+            for (int x : player.getPreviousX()) {
                 terminal.setCursorPosition(x, y);
                 terminal.putCharacter(' ');
             }
         }
         terminal.setForegroundColor(TextColor.ANSI.RED);
 
-        for(int y : player.getY()){
-            for(int x : player.getX()){
+        for (int y : player.getY()) {
+            for (int x : player.getX()) {
                 terminal.setCursorPosition(x, y);
                 terminal.putCharacter(player.getSymbol());
             }
         }
 
-        for(Opponent o : opponents){
-            for(int y : o.getPreviousY()){
-                for(int x : o.getPreviousX()){
+        for (Opponent o : opponents) {
+            for (int y : o.getPreviousY()) {
+                for (int x : o.getPreviousX()) {
                     terminal.setCursorPosition(x, y);
                     terminal.putCharacter(' ');
                 }
             }
             terminal.setForegroundColor(TextColor.ANSI.BLUE);
 
-            for(int y : o.getY()){
-                if(o.getY()[2] >= 0){
-                    for(int x : o.getX()){
+            for (int y : o.getY()) {
+                if (o.getY()[2] >= 0) {
+                    for (int x : o.getX()) {
                         terminal.setCursorPosition(x, y);
                         terminal.putCharacter(o.getSymbol());
                     }
                 }
             }
+        }
+        terminal.setForegroundColor(TextColor.ANSI.BLACK);
+        for(int x = roadSideWidth; x< 80-roadSideWidth; x++){
+            terminal.setCursorPosition(x, 25);
+            terminal.putCharacter('\u2588');
         }
 
         terminal.flush();
@@ -151,16 +201,16 @@ public class Main {
         Character roadSide = '\u2588'; //Block character
         terminal.setForegroundColor(TextColor.ANSI.GREEN); //Set color of Roadside
         //Draw left side of the road
-        for(int y = 0; y<25; y++){
-            for(int x = 0; x < width; x++){
-                terminal.setCursorPosition(x,y);
+        for (int y = 0; y < 25; y++) {
+            for (int x = 0; x < width; x++) {
+                terminal.setCursorPosition(x, y);
                 terminal.putCharacter(roadSide);
             }
         }
         //Draw right side of the road
-        for(int y = 0; y<25; y++){
-            for(int x = 80; x >= (80-width); x--){
-                terminal.setCursorPosition(x,y);
+        for (int y = 0; y < 25; y++) {
+            for (int x = 80; x >= (80 - width); x--) {
+                terminal.setCursorPosition(x, y);
                 terminal.putCharacter(roadSide);
             }
         }
