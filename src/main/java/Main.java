@@ -25,9 +25,7 @@ public class Main {
             e.printStackTrace();
             System.exit(1);
         } finally {
-            System.out.println("Game over!");
-            System.out.printf("Your score is: %d", score);
-            //TODO: Lägg till "Game over" och annat kul vid spelets slut
+
         }
 
     }
@@ -85,10 +83,13 @@ public class Main {
 
 
             drawCars(terminal, player, opponents);
-            printScore(terminal, score);
-            System.out.println(opponents.size());
+            printScore(terminal,0,0, score);
+            // System.out.println(opponents.size());
 
         } while (isPlayerAlive(player, opponents));
+
+        gameOver(terminal);
+
     }
 
     private static KeyStroke getUserKeyStroke(Terminal terminal) throws InterruptedException, IOException {
@@ -135,7 +136,7 @@ public class Main {
 
     private static boolean isPlayerAlive(Player player, List<Opponent> opponents) {
         for (Opponent o : opponents) {
-            if (player.getY()[0] - o.getY()[2] < 2 && o.getY()[0] < 26) {
+            if (o.getY()[2] >= player.getY()[0] && o.getY()[0] <= player.getY()[2]) {
                 if (o.getX()[0] == player.getX()[0] || o.getX()[1] == player.getX()[0] || o.getX()[0] == player.getX()[1] || o.getX()[1] == player.getX()[1]) {
                     return false;
                 }
@@ -144,6 +145,17 @@ public class Main {
         return true;
     }
 
+    private static void printScore(Terminal terminal, int x, int y, int score) throws IOException {
+        String scoreString = "Score: " + Integer.toString(score);
+        char[] scoreCharArray = scoreString.toCharArray();
+        terminal.setForegroundColor(TextColor.ANSI.WHITE);
+        for (int i = 0; i < scoreCharArray.length; i++) {
+            terminal.setCursorPosition(x+i, y);
+            terminal.putCharacter(scoreCharArray[i]);
+        }
+    }
+
+    /* // Working before refactoring
     private static void printScore(Terminal terminal, int score) throws IOException {
         String scoreString = "Score: " + Integer.toString(score);
         char[] scoreCharArray = scoreString.toCharArray();
@@ -153,6 +165,7 @@ public class Main {
             terminal.putCharacter(scoreCharArray[i]);
         }
     }
+ */
 
     private static void drawCars(Terminal terminal, Player player, List<Opponent> opponents) throws IOException {
         for (int y : player.getPreviousY()) {
@@ -215,5 +228,22 @@ public class Main {
             }
         }
         terminal.flush();
+    }
+
+    private static void gameOver(Terminal terminal) throws IOException {
+        String gameOver = "GAME OVER";
+        char[] gameOverArray = gameOver.toCharArray();
+
+        for (int i = 0; i < gameOverArray.length; i++) {
+            terminal.setCursorPosition(36+i, 10);
+            terminal.putCharacter(gameOverArray[i]);
+        }
+
+        printScore(terminal,35,12, score);
+
+        terminal.flush();
+
+        System.out.println("Game over!");
+        System.out.printf("Your score is: %d", score);
     }
 }
