@@ -50,6 +50,8 @@ public class Main {
 
         int carSpawnFactor = 50;
         int speedFactor = 50;
+        double fuel = 100;
+
         do {
             score++;
             Thread.sleep(speedFactor);
@@ -77,18 +79,20 @@ public class Main {
             if (score % 100 == 0 && carSpawnFactor > 20) {
                 carSpawnFactor = carSpawnFactor - 5;
             }
+
             if (score % 100 == 0 && speedFactor > 5) {
                 speedFactor = speedFactor - 5;
             }
 
-
+            fuel = fuel - 0.1;
             drawCars(terminal, player, opponents);
             printScore(terminal,0,0, score);
+            printFuel(terminal, fuel);
             // System.out.println(opponents.size());
 
-        } while (isPlayerAlive(player, opponents));
+        } while (isPlayerAlive(player, opponents, fuel));
 
-        gameOver(terminal);
+        gameOver(terminal, fuel);
 
     }
 
@@ -133,13 +137,16 @@ public class Main {
         }
     }
 
-    private static boolean isPlayerAlive(Player player, List<Opponent> opponents) {
+    private static boolean isPlayerAlive(Player player, List<Opponent> opponents, double fuel) {
         for (Opponent o : opponents) {
             if (o.getY()[2] >= player.getY()[0] && o.getY()[0] <= player.getY()[2]) {
                 if (o.getX()[0] == player.getX()[0] || o.getX()[1] == player.getX()[0] || o.getX()[0] == player.getX()[1] || o.getX()[1] == player.getX()[1]) {
                     return false;
                 }
             }
+        }
+        if (fuel <= 0.0) {
+            return false;
         }
         return true;
     }
@@ -154,17 +161,31 @@ public class Main {
         }
     }
 
-    /* // Working before refactoring
-    private static void printScore(Terminal terminal, int score) throws IOException {
-        String scoreString = "Score: " + Integer.toString(score);
-        char[] scoreCharArray = scoreString.toCharArray();
-        terminal.setForegroundColor(TextColor.ANSI.WHITE);
-        for (int i = 0; i < scoreCharArray.length; i++) {
-            terminal.setCursorPosition(i, 0);
-            terminal.putCharacter(scoreCharArray[i]);
+    private static void printFuel(Terminal terminal, double fuel) throws IOException {
+        fuel = (int) (fuel);
+        String fuelString = "Fuel: ";
+
+        if (fuel > 80) {
+            fuelString = fuelString + "XXXXX";
+        } else if (fuel > 60) {
+            fuelString = fuelString + "XXXX.";
+        } else if (fuel > 40) {
+            fuelString = fuelString + "XXX..";
+        } else if (fuel > 20) {
+            fuelString = fuelString + "X....";
+        } else {
+            fuelString = fuelString + ".....";
         }
+
+        char[] fuelCharArray = fuelString.toCharArray();
+        terminal.setForegroundColor(TextColor.ANSI.WHITE);
+        for (int i = 0; i < fuelCharArray.length; i++) {
+            terminal.setCursorPosition(69+i,0);
+            terminal.putCharacter(fuelCharArray[i]);
+        }
+
+        System.out.println(fuel);
     }
- */
 
     private static void drawCars(Terminal terminal, Player player, List<Opponent> opponents) throws IOException {
         for (int y : player.getPreviousY()) {
@@ -230,12 +251,19 @@ public class Main {
         terminal.flush();
     }
 
-    private static void gameOver(Terminal terminal) throws IOException {
-        String gameOver = "GAME OVER";
+    private static void gameOver(Terminal terminal, double fuel) throws IOException {
+        String reason = null;
+        if (fuel <= 0.0) {
+            reason = "OUT OF GAS";
+        } else {
+            reason = "YOU CRASHED";
+        }
+
+        String gameOver = "GAME OVER - " + reason;
         char[] gameOverArray = gameOver.toCharArray();
 
         for (int i = 0; i < gameOverArray.length; i++) {
-            terminal.setCursorPosition(36+i, 10);
+            terminal.setCursorPosition(29+i, 10);
             terminal.putCharacter(gameOverArray[i]);
         }
 
