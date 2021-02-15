@@ -1,5 +1,4 @@
 import com.googlecode.lanterna.TextColor;
-
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Opponent {
@@ -28,7 +27,6 @@ public class Opponent {
 
         }
     }
-
 
     private TextColor assignRandomColor() {
         int colorId = ThreadLocalRandom.current().nextInt(1, 7);
@@ -62,7 +60,7 @@ public class Opponent {
         return y;
     }
 
-   public char getSymbol() {
+    public char getSymbol() {
         return symbol;
     }
 
@@ -81,4 +79,5 @@ public class Opponent {
     public void setPreviousY(int[] previousY) {
         this.previousY = previousY;
     }
+
 }

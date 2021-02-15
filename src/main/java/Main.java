@@ -19,9 +19,7 @@ public class Main {
             e.printStackTrace();
             System.exit(1);
         } finally {
-
         }
-
     }
 
     private static void startGame() throws IOException, InterruptedException {
@@ -93,7 +91,6 @@ public class Main {
             }
 
             if (score % 100 == 0 && speedFactor > 15) {
-                System.out.println(speedFactor);
                 speedFactor = speedFactor - 2;
             }
 
@@ -212,7 +209,6 @@ public class Main {
             terminal.putCharacter(fuelCharArray[i]);
         }
 
-
     }
 
     private static void drawCars(Terminal terminal, Player player, List<Opponent> opponents, List<Fuel> fuelObjects) throws IOException {
@@ -265,6 +261,7 @@ public class Main {
         }
 
         terminal.flush();
+
     }
 
     private static void drawRoadside(Terminal terminal, int width) throws IOException {
@@ -274,7 +271,6 @@ public class Main {
             for (int x = 0; x < width; x++) {
                 terminal.setCursorPosition(x, y);
                 terminal.putCharacter(roadSide);
-
             }
 
         }
@@ -283,13 +279,12 @@ public class Main {
                 terminal.setCursorPosition(x, y);
                 terminal.putCharacter(roadSide);
             }
-
         }
+
         terminal.setForegroundColor(TextColor.ANSI.WHITE);
         String gameName = "Mad Max 2021";
         char[] gameNameChar = gameName.toCharArray();
         for (int i = 0; i < gameNameChar.length; i++){
-
             terminal.setCursorPosition(68 + i, 22);
             terminal.putCharacter(gameNameChar[i]);
         }
@@ -322,7 +317,5 @@ public class Main {
 
         terminal.flush();
 
-        System.out.println("Game over!");
-        System.out.printf("Your score is: %d", score);
     }
 }

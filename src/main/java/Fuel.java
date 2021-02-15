@@ -1,6 +1,5 @@
 import com.googlecode.lanterna.TextColor;
 
-
 public class Fuel {
     private int x;
     private int y;
@@ -41,4 +40,4 @@ public class Fuel {
         return previousY;
     }
 
-    }
+}
