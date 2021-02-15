@@ -282,7 +282,9 @@ public class Main {
             for (int x = 0; x < width; x++) {
                 terminal.setCursorPosition(x, y);
                 terminal.putCharacter(roadSide);
+
             }
+
         }
         //Draw right side of the road
         for (int y = 0; y < 25; y++) {
@@ -290,6 +292,21 @@ public class Main {
                 terminal.setCursorPosition(x, y);
                 terminal.putCharacter(roadSide);
             }
+
+        }
+        terminal.setForegroundColor(TextColor.ANSI.WHITE);
+        String gameName = "Mad Max 2021";
+        char[] gameNameChar = gameName.toCharArray();
+        for (int i = 0; i < gameNameChar.length; i++){
+
+            terminal.setCursorPosition(68 + i, 22);
+            terminal.putCharacter(gameNameChar[i]);
+        }
+        String gameName2 = "Provided by Team 3";
+        char[] gameName2Char = gameName2.toCharArray();
+        for (int i = 0; i < gameName2Char.length; i++){
+            terminal.setCursorPosition(62 + i, 23);
+            terminal.putCharacter(gameName2Char[i]);
         }
         terminal.flush();
     }
