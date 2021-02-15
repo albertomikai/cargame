@@ -1,5 +1,5 @@
 import com.googlecode.lanterna.TextColor;
-import com.googlecode.lanterna.terminal.Terminal;
+
 
 public class Fuel {
     private int x;
@@ -37,20 +37,8 @@ public class Fuel {
         return y;
     }
 
-    public int getPreviousX() {
-        return previousX;
-    }
-
-    public void setPreviousX(int previousX) {
-        this.previousX = previousX;
-    }
-
     public int getPreviousY() {
         return previousY;
     }
 
-    public void setPreviousY(int previousY) {
-        this.previousY = previousY;
     }
-
-}

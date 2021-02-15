@@ -29,12 +29,6 @@ public class Opponent {
         }
     }
 
-    public void moveRight(){
-        for(int i = 0; i < x.length; i++){
-            previousX[i] = x[i];
-            x[i] = x[i] + 1;
-        }
-    }
 
     private TextColor assignRandomColor() {
         int colorId = ThreadLocalRandom.current().nextInt(1, 7);
@@ -64,32 +58,12 @@ public class Opponent {
         return x;
     }
 
-    public int getX1() {
-        return x[0];
-    }
-
-    public int getX2() {
-        return x[1];
-    }
-
-    public void setX(int[] x) {
-        this.x = x;
-    }
-
     public int[] getY() {
         return y;
     }
 
-    public void setY(int[] y) {
-        this.y = y;
-    }
-
-    public char getSymbol() {
+   public char getSymbol() {
         return symbol;
-    }
-
-    public void setSymbol(char symbol) {
-        this.symbol = symbol;
     }
 
     public int[] getPreviousX() {

@@ -2,11 +2,9 @@ import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Main {
@@ -15,8 +13,6 @@ public class Main {
 
     public static void main(String[] args) {
 
-        System.out.println("Cargame");
-        System.out.println("*******");
         try {
             startGame();
         } catch (IOException | InterruptedException e) {
@@ -75,7 +71,6 @@ public class Main {
 
                 for (Fuel fuelObject : fuelObjects) {
                     fuelObject.move();
-                    // System.out.println("Prev: " + fuelObject.getPreviousY() + "Current: " + fuelObject.getY());
                     if(fuelObject.getY() == 30) {
                         fuelObjectsForRemoval.add(fuelObject);
                     }
@@ -106,7 +101,6 @@ public class Main {
             drawCars(terminal, player, opponents, fuelObjects);
             printScore(terminal,0,0, score);
             printFuel(terminal, fuel);
-            // System.out.println(opponents.size());
 
             for (Fuel fuelObject : fuelObjects) {
                 if (fuelObject.getY() == player.getY()[0] || fuelObject.getY() == player.getY()[1] || fuelObject.getY() == player.getY()[2]) {
@@ -146,8 +140,7 @@ public class Main {
     private static Fuel createFuelObject() {
         int x = ThreadLocalRandom.current().nextInt(roadSideWidth, 79 - roadSideWidth);
         int y = 0;
-        Fuel fuelObject = new Fuel (x,y);
-        return fuelObject;
+        return new Fuel (x,y);
     }
 
     private static Terminal createTerminal() throws IOException {
@@ -187,7 +180,7 @@ public class Main {
     }
 
     private static void printScore(Terminal terminal, int x, int y, int score) throws IOException {
-        String scoreString = "Score: " + Integer.toString(score);
+        String scoreString = "Score: " + score;
         char[] scoreCharArray = scoreString.toCharArray();
         terminal.setForegroundColor(TextColor.ANSI.WHITE);
         for (int i = 0; i < scoreCharArray.length; i++) {
@@ -219,7 +212,7 @@ public class Main {
             terminal.putCharacter(fuelCharArray[i]);
         }
 
-        // System.out.println(fuel);
+
     }
 
     private static void drawCars(Terminal terminal, Player player, List<Opponent> opponents, List<Fuel> fuelObjects) throws IOException {
@@ -275,9 +268,8 @@ public class Main {
     }
 
     private static void drawRoadside(Terminal terminal, int width) throws IOException {
-        Character roadSide = '\u2588'; //Block character
-        terminal.setForegroundColor(TextColor.ANSI.GREEN); //Set color of Roadside
-        //Draw left side of the road
+        Character roadSide = '\u2588';
+        terminal.setForegroundColor(TextColor.ANSI.GREEN);
         for (int y = 0; y < 25; y++) {
             for (int x = 0; x < width; x++) {
                 terminal.setCursorPosition(x, y);
@@ -286,7 +278,6 @@ public class Main {
             }
 
         }
-        //Draw right side of the road
         for (int y = 0; y < 25; y++) {
             for (int x = 80; x >= (80 - width); x--) {
                 terminal.setCursorPosition(x, y);
@@ -312,7 +303,7 @@ public class Main {
     }
 
     private static void gameOver(Terminal terminal, double fuel) throws IOException {
-        String reason = null;
+        String reason;
         if (fuel <= 0.0) {
             reason = "OUT OF GAS";
         } else {
