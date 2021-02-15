@@ -46,7 +46,12 @@ public class Main {
 
         List<Opponent> opponentsForRemoval = new ArrayList<>();
 
-        drawCars(terminal, player, opponents);
+        List<Fuel> fuelObjects = new ArrayList<>();
+        fuelObjects.add(new Fuel(35,0));
+
+        List<Fuel> fuelObjectsForRemoval = new ArrayList<>();
+
+        drawCars(terminal, player, opponents, fuelObjects);
 
         int carSpawnFactor = 50;
         int speedFactor = 50;
@@ -69,7 +74,17 @@ public class Main {
                         opponentsForRemoval.add(o);
                     }
                 }
+
+                for (Fuel fuelObject : fuelObjects) {
+                    fuelObject.move();
+                    // System.out.println("Prev: " + fuelObject.getPreviousY() + "Current: " + fuelObject.getY());
+                    if(fuelObject.getY() == 30) {
+                        fuelObjectsForRemoval.add(fuelObject);
+                    }
+                }
+
                 opponents.removeAll(opponentsForRemoval);
+                fuelObjects.removeAll(fuelObjectsForRemoval);
             }
 
             if (score % carSpawnFactor == 0) {
@@ -80,12 +95,16 @@ public class Main {
                 carSpawnFactor = carSpawnFactor - 5;
             }
 
+            if (score % 200 == 0) {
+                fuelObjects.add(createFuelObject());
+            }
+
             if (score % 100 == 0 && speedFactor > 5) {
                 speedFactor = speedFactor - 5;
             }
 
             fuel = fuel - 0.1;
-            drawCars(terminal, player, opponents);
+            drawCars(terminal, player, opponents, fuelObjects);
             printScore(terminal,0,0, score);
             printFuel(terminal, fuel);
             // System.out.println(opponents.size());
@@ -112,7 +131,13 @@ public class Main {
         opponent.setPreviousX(opponentPreviousX);
         opponent.setPreviousY(opponentPreviousY);
         return opponent;
+    }
 
+    private static Fuel createFuelObject() {
+        int x = ThreadLocalRandom.current().nextInt(roadSideWidth, 79 - roadSideWidth);
+        int y = 0;
+        Fuel fuelObject = new Fuel (x,y);
+        return fuelObject;
     }
 
     private static Terminal createTerminal() throws IOException {
@@ -184,10 +209,10 @@ public class Main {
             terminal.putCharacter(fuelCharArray[i]);
         }
 
-        System.out.println(fuel);
+        // System.out.println(fuel);
     }
 
-    private static void drawCars(Terminal terminal, Player player, List<Opponent> opponents) throws IOException {
+    private static void drawCars(Terminal terminal, Player player, List<Opponent> opponents, List<Fuel> fuelObjects) throws IOException {
         for (int y : player.getPreviousY()) {
             for (int x : player.getPreviousX()) {
                 terminal.setCursorPosition(x, y);
@@ -210,7 +235,6 @@ public class Main {
                     terminal.putCharacter(' ');
                 }
             }
-            //terminal.setForegroundColor(TextColor.ANSI.BLUE);
 
             for (int y : o.getY()) {
                 terminal.setForegroundColor(o.getColor());
@@ -222,6 +246,17 @@ public class Main {
                 }
             }
         }
+
+        for (Fuel fuelObject : fuelObjects) {
+            terminal.setForegroundColor(fuelObject.getColor());
+            terminal.setCursorPosition(fuelObject.getX(),fuelObject.getPreviousY());
+            System.out.println("Prev: " + fuelObject.getPreviousY());
+            terminal.putCharacter(' ');
+            terminal.setCursorPosition(fuelObject.getX(),fuelObject.getY());
+            terminal.putCharacter(fuelObject.getSymbol());
+            System.out.println("Current: " + fuelObject.getY());
+        }
+
         terminal.setForegroundColor(TextColor.ANSI.BLACK);
         for(int x = roadSideWidth; x< 80-roadSideWidth; x++){
             terminal.setCursorPosition(x, 25);
