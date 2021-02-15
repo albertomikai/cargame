@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
-//TODO: lägg till ytterligare spelmoment
-
 public class Main {
     public static int score = 0;
     public static int roadSideWidth = 20;
@@ -99,8 +97,9 @@ public class Main {
                 fuelObjects.add(createFuelObject());
             }
 
-            if (score % 100 == 0 && speedFactor > 5) {
-                speedFactor = speedFactor - 5;
+            if (score % 100 == 0 && speedFactor > 15) {
+                System.out.println(speedFactor);
+                speedFactor = speedFactor - 2;
             }
 
             fuel = fuel - 0.1;
@@ -108,6 +107,17 @@ public class Main {
             printScore(terminal,0,0, score);
             printFuel(terminal, fuel);
             // System.out.println(opponents.size());
+
+            for (Fuel fuelObject : fuelObjects) {
+                if (fuelObject.getY() == player.getY()[0] || fuelObject.getY() == player.getY()[1] || fuelObject.getY() == player.getY()[2]) {
+                    if (fuelObject.getX() == player.getX()[0] || fuelObject.getX() == player.getX()[1]) {
+                        fuel = fuel + 20;
+                        fuelObjectsForRemoval.add(fuelObject);
+                    }
+                }
+            }
+
+            fuelObjects.removeAll(fuelObjectsForRemoval);
 
         } while (isPlayerAlive(player, opponents, fuel));
 
@@ -250,11 +260,9 @@ public class Main {
         for (Fuel fuelObject : fuelObjects) {
             terminal.setForegroundColor(fuelObject.getColor());
             terminal.setCursorPosition(fuelObject.getX(),fuelObject.getPreviousY());
-            System.out.println("Prev: " + fuelObject.getPreviousY());
             terminal.putCharacter(' ');
             terminal.setCursorPosition(fuelObject.getX(),fuelObject.getY());
             terminal.putCharacter(fuelObject.getSymbol());
-            System.out.println("Current: " + fuelObject.getY());
         }
 
         terminal.setForegroundColor(TextColor.ANSI.BLACK);
