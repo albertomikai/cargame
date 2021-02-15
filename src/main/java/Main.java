@@ -109,7 +109,6 @@ public class Main {
         opponent.setPreviousY(opponentPreviousY);
         return opponent;
 
-        //TODO: Assigna färg på Opponent
     }
 
     private static Terminal createTerminal() throws IOException {
@@ -190,9 +189,10 @@ public class Main {
                     terminal.putCharacter(' ');
                 }
             }
-            terminal.setForegroundColor(TextColor.ANSI.BLUE);
+            //terminal.setForegroundColor(TextColor.ANSI.BLUE);
 
             for (int y : o.getY()) {
+                terminal.setForegroundColor(o.getColor());
                 if (o.getY()[2] >= 0) {
                     for (int x : o.getX()) {
                         terminal.setCursorPosition(x, y);
